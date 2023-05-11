@@ -1,5 +1,7 @@
 FROM opensciencegrid/software-base:3.6-el8-release
 
+LABEL org.opencontainers.image.source https://github.com/guyzsarun/xrootd-kubernetes
+
 ARG UNAME=xrootd
 ARG UID=492
 ARG GID=493
