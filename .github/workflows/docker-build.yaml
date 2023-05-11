@@ -25,5 +25,5 @@ jobs:
           push: false
           tags: latest
 
-      - name: Push image
-        run: docker push ghcr.io/guyzsarun/xrootd-kubernetes:latest
+      # - name: Push image
+      #   run: docker push ghcr.io/guyzsarun/xrootd-kubernetes:latest
