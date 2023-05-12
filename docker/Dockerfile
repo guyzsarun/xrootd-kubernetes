@@ -26,6 +26,6 @@ RUN yum -y install  osg-xrootd \
 
 RUN yum install -y xrootd-cmstfc --enablerepo=osg-contrib && yum clean all && rm -rf /var/cache/yum
 
-COPY . /etc/xrootd/
+COPY xrootd /etc/xrootd/
 
 ENTRYPOINT xrootd -c /etc/xrootd/xrootd-cluster.conf -d
