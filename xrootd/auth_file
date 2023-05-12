@@ -1,0 +1,9 @@
+t writecmsdata /store/user/              a  \
+               /store/group/             a  \
+               /store/temp/              a  \
+               /store/unmerged/          a
+
+t readcmsdata  /store/                   lr
+
+
+u testuser writecmsdata readcmsdata
