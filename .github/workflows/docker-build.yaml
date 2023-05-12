@@ -14,7 +14,8 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: docker
+          context: .
+          file: docker/Dockerfile
           push: false
           tags: ghcr.io/guyzsarun/xrootd-kubernetes:latest
 
