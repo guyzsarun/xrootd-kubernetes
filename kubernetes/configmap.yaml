@@ -2,9 +2,9 @@ apiVersion: v1
 data:
   auth_file: |
     t writecmsdata /store/user/              a  \
-                  /store/group/             a  \
-                  /store/temp/              a  \
-                  /store/unmerged/          a
+                  /store/group/              a  \
+                  /store/temp/               a  \
+                  /store/unmerged/           a
 
     t readcmsdata  /store/                   lr
 
@@ -58,16 +58,24 @@ data:
     # redirector would have a manager role.
     #
 
-    all.role manager
-    all.manager xrootd-manager 1213
+    if xrootd-manager*
+      all.role manager
+      xrd.port any
+    else
+      all.role server
+    fi
 
     if exec xrootd
       xrd.port 1094
-    fi
+      all.manager localhost 1213
+      xrd.protocol http:1094 /usr/lib64/libXrdHttp.so
+      sec.protocol ztn
 
-    if exec cmsd
-      xrd.port any
+      http.listingdeny yes
+      http.header2cgi Authorization authz
+    else
       xrd.port 1213
+      all.manager xrootd-manager 1213
     fi
 
     cms.allow host *
@@ -85,8 +93,9 @@ data:
     # The adminpath and pidpath variables indicate where the pid and various
     # IPC files should be placed
     #
-    all.adminpath /home/xrootd/var/spool/xrootd
-    all.pidpath /home/xrootd/run/xrootd
+
+    all.adminpath /var/run/xrootd/var/spool/xrootd
+    all.pidpath /var/run/xrootd/run/xrootd
 
     # More configuration files can be added in /etc/xrootd/config.d/
     # For example /etc/xrootd/config.d/10-mygrid.cfg and
@@ -97,9 +106,8 @@ data:
     ofs.authlib ++ libXrdAccSciTokens.so config=/etc/xrootd/scitokens.conf
 
     multiuser.umask 0022
-    ofs.trace none
     ofs.authorize 1
-    #ofs.trace -all
+    ofs.trace -all
     macaroons.secretkey /etc/xrootd/macaroon-secret
 
     acc.authdb /etc/xrootd/auth_file
@@ -107,18 +115,7 @@ data:
 
     scitokens.trace all
 
-
-    if exec xrootd
-      xrd.protocol http:1094 /usr/lib64/libXrdHttp.so
-      sec.protocol ztn
-
-      http.listingdeny yes
-      http.header2cgi Authorization authz
-
-    fi
-
-
-    xrd.network cache 0s
+    xrd.network cache 0s rpipa
 kind: ConfigMap
 metadata:
   name: xrootd-config
