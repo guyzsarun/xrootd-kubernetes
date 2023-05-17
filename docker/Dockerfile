@@ -9,8 +9,7 @@ ARG GID=493
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 
-RUN yum install -y  xrootd-1:$XROOTD_VERSION.osg36.el8 \
-                    python3-scitokens \
+RUN yum install -y  python3-scitokens \
                     xrootd-scitokens \
                     gfal2-plugin-xrootd \
                     xrootd-multiuser \
@@ -18,6 +17,8 @@ RUN yum install -y  xrootd-1:$XROOTD_VERSION.osg36.el8 \
                     xrootd-client-compat \
                     xrootd-client \
                     scitokens-cpp
+
+RUN yum install -y  xrootd-1:$XROOTD_VERSION.osg36.el8
 
 RUN yum install -y xrootd-cmstfc --enablerepo=osg-contrib && yum clean all && rm -rf /var/cache/yum
 RUN openssl rand -base64 -out /etc/xrootd/macaroon-secret 64
