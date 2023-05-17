@@ -21,6 +21,8 @@ jobs:
           file: docker/Dockerfile
           push: false
           tags: ghcr.io/guyzsarun/xrootd-kubernetes:latest
+          build-args: |
+            XROOTD_VERSION =${{ env.XROOTD_VERSION }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
