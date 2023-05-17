@@ -24,7 +24,7 @@ jobs:
           push: false
           tags: ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
           build-args: |
-            XROOTD_VERSION =${{ matrix.xrootd_version }}
+            XROOTD_VERSION=${{ matrix.xrootd_version }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
