@@ -16,6 +16,7 @@ RUN yum install -y  xrootd-1:$XROOTD_VERSION.osg36.el8 \
                     xrootd-multiuser \
                     xrootd-lcmaps \
                     xrootd-client-compat \
+                    xrootd-client \
                     scitokens-cpp
 
 RUN yum install -y xrootd-cmstfc --enablerepo=osg-contrib && yum clean all && rm -rf /var/cache/yum
