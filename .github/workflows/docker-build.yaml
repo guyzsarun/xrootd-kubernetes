@@ -8,7 +8,7 @@ jobs:
   docker-build:
     strategy:
       matrix:
-        xrootd_version: [ 5.3.4-1,5.4.3-1,5.5.3-1.2,5.5.4-1.1 ]
+        xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
     name: docker-build
     runs-on: ubuntu-latest
     steps:
