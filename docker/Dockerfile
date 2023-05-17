@@ -1,5 +1,5 @@
 FROM opensciencegrid/software-base:3.6-el8-release
-ARG  XROOTD_VERSION=5.3.2-1
+ARG  XROOTD_VERSION=5.5.4-1.1
 
 LABEL org.opencontainers.image.source https://github.com/guyzsarun/xrootd-kubernetes
 
