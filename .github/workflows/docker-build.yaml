@@ -3,11 +3,11 @@ name: docker-build
 on:
   push:
 
-env:
-  XROOTD_VERSION: 5.5.4-1.1
-
 jobs:
-  docker:
+  docker-build:
+    strategy:
+      matrix:
+        xrootd_version: [ 5.3.4-1,5.4.3-1,5.5.3-1.2,5.5.4-1.1 ]
     name: docker-build
     runs-on: ubuntu-latest
     steps:
@@ -20,9 +20,9 @@ jobs:
           context: .
           file: docker/Dockerfile
           push: false
-          tags: ghcr.io/guyzsarun/xrootd-kubernetes:latest
+          tags: ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
           build-args: |
-            XROOTD_VERSION =${{ env.XROOTD_VERSION }}
+            XROOTD_VERSION =${{ matrix.xrootd_version }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -32,4 +32,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push image
-        run: docker push ghcr.io/guyzsarun/xrootd-kubernetes:latest
+        run: docker push ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
