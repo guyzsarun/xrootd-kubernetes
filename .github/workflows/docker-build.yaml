@@ -3,8 +3,6 @@ name: docker-build
 on:
   workflow_dispatch:
   push:
-    paths:
-    - docker/**
 
 jobs:
   docker-build:
