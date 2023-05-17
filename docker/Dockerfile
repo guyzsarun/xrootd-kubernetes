@@ -1,4 +1,5 @@
 FROM opensciencegrid/software-base:3.6-el8-release
+ARG  XROOTD_VERSION=5.5.4-1.1
 
 LABEL org.opencontainers.image.source https://github.com/guyzsarun/xrootd-kubernetes
 
@@ -8,20 +9,12 @@ ARG GID=493
 RUN groupadd -g $GID -o $UNAME
 RUN useradd -m -u $UID -g $GID -o -s /bin/bash $UNAME
 
-RUN yum -y install  osg-xrootd \
-                    xrootd  \
-                    xrootd-server \
-                    xrootd-libs \
-                    xrootd-server-libs \
-                    xrootd-client \
-                    xrootd-client-libs \
-                    xrootd-scitokens \
+RUN yum install -y  xrootd-1:$XROOTD_VERSION.osg36.el8 \
                     python3-scitokens \
                     gfal2-plugin-xrootd \
                     xrootd-multiuser \
                     xrootd-lcmaps \
                     xrootd-client-compat \
-                    xrootd-voms \
                     scitokens-cpp
 
 RUN yum install -y xrootd-cmstfc --enablerepo=osg-contrib && yum clean all && rm -rf /var/cache/yum
