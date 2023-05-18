@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
-      - run: ls kubernetes
+      - run: ls -1Rd kubernetes/*.yaml
       - uses: azure/k8s-lint@v1
         with:
            manifests: |
