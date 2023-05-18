@@ -9,7 +9,7 @@ jobs:
       matrix:
         xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master' }}
+#    if: ${{ github.ref == 'refs/heads/master' }}
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
@@ -25,7 +25,7 @@ jobs:
             XROOTD_VERSION=${{ matrix.xrootd_version }}
   build:
     <<: *build-all
-    if: ${{ github.ref != 'refs/heads/master' }}
+#    if: ${{ github.ref != 'refs/heads/master' }}
     
     
   push-registry:
