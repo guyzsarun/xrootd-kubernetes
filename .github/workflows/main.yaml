@@ -10,7 +10,6 @@ jobs:
       - uses: azure/setup-kubectl@v2.0
       - uses: azure/k8s-lint@v1
         with:
-          lintType: dryrun
           manifests: |
               kubernetes/*
 
@@ -20,6 +19,7 @@ jobs:
       matrix:
         xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
     if: ${{ github.ref == 'refs/heads/master' }}
+    needs: test
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
@@ -37,6 +37,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: ${{ github.ref != 'refs/heads/master' }}
+    needs: test
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
