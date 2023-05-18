@@ -1,4 +1,4 @@
-name: main-ci
+name: pipeline
 
 on:
   push:
