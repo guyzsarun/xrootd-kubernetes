@@ -9,11 +9,11 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
-      - run: ls -1Rd kubernetes/*.yaml
+      - run: echo "YAML_LIST=$(ls -1Rd kubernetes/*.yaml)" >> $GITHUB_ENV
       - uses: azure/k8s-lint@v1
         with:
            manifests: |
-              kubernetes/configmap.yaml
+              ${{ YAML_LIST }}
 
   build-all:
     runs-on: ubuntu-latest
