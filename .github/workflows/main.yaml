@@ -4,6 +4,16 @@ on:
   push:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/setup-kubectl@v2.0
+      - uses: azure/k8s-lint@v1
+        with:
+          lintType: dryrun
+          manifests: |
+              kubernetes/*
+
   build-all:
     runs-on: ubuntu-latest
     strategy:
