@@ -2,14 +2,14 @@ name: main-ci
 
 on:
   push:
-  
+
 jobs:
-  build-all: 
+  build-all:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
-    runs-on: ubuntu-latest
-#    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' }}
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
@@ -23,11 +23,22 @@ jobs:
           tags: ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
           build-args: |
             XROOTD_VERSION=${{ matrix.xrootd_version }}
-#   build:
-#     <<: *build-all
-# #    if: ${{ github.ref != 'refs/heads/master' }}
-    
-    
+
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref != 'refs/heads/master' }}
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+
+
   push-registry:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
