@@ -4,7 +4,7 @@ on:
   push:
   
 jobs:
-  build-all: &build-all
+  build-all: 
     strategy:
       matrix:
         xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
