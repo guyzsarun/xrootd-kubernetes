@@ -1,0 +1,121 @@
+apiVersion: v1
+data:
+  auth_file: |
+    t writecmsdata /store/user/              a  \
+                  /store/group/              a  \
+                  /store/temp/               a  \
+                  /store/unmerged/           a
+
+    t readcmsdata  /store/                   lr
+
+
+    u testuser writecmsdata readcmsdata
+  scitokens.conf: |-
+    [Global]
+    omissing = passthrough
+
+
+    [Issuer CMS_IAM]
+    issuer = https://cms-auth.web.cern.ch/
+    base_path = /
+    map_subject = False
+    default_user = testuser
+
+  xrootd-cluster.conf: |-
+    ###########################################################################
+    # This is a very simple sample configuration file sufficient to start an  #
+    # xrootd data server using the default port 1094 and its companion cmsd.  #
+    # Trying to use the xrootd will cause the client to simply wait because   #
+    # there is no redirector and this configuration file is insufficient to   #
+    # start one. Consult the reference manuals on how to create a usable      #
+    # configuration file to completely describe a functional xrootd cluster.  #
+    #                                                                         #
+    # On start-up the xrootd will complain about not connecting to the pipe   #
+    # named '/var/spool/xrootd/.olb/olbd.admin'. This will continue until the #
+    # cmsd starts. When the cmsd start is will say ' Waiting for primary      #
+    # server to login.' Once xrootd is started and connects to the cmsd, the  #
+    # cmsd will complain 'Unable to connect socket to localhost' because      #
+    # there is no redirector. However, this shows that xrootd and cmsd have   #
+    # been correctly installed.                                               #
+    #                                                                         #
+    # Note: You should always create a *single* configuration file and use it #
+    # when starting each daemon that you need to run in the cluster!          #
+    ###########################################################################
+
+    all.sitename TX_XX_XXXX
+
+    # The export directive indicates which paths are to be exported. While the
+    # default is '/tmp', we indicate it anyway and add the 'stages attribute
+    # to allow you to start the frm_xfrd to bring in missing files into '/tmp'.
+    # Remove this attribute if you don't want to enable this feature.
+    #
+
+    all.export /store stage
+
+    # The role directive tells xrootd to run as a data server as part of a
+    # cluster. The causes the xrootd to try to contact the local cmsd which
+    # needs to started as part of of initialization. As a side note, a
+    # redirector would have a manager role.
+    #
+
+    if xrootd-manager*
+      all.role manager
+      xrd.port any
+    else
+      all.role server
+    fi
+
+    if exec xrootd
+      xrd.port 1094
+      all.manager localhost 1213
+      xrd.protocol http:1094 /usr/lib64/libXrdHttp.so
+      sec.protocol ztn
+
+      http.listingdeny yes
+      http.header2cgi Authorization authz
+    else
+      xrd.port 1213
+      all.manager xrootd-manager 1213
+    fi
+
+    cms.allow host *
+    cms.delay startup 10 servers 1
+
+    xrootd.async off
+
+    # The copycmd directive tells the frm_xfrd what to use to copy files into
+    # an exported path with the 'stage' attribute. Here we just say this will
+    # be '/bin/cp' to allow the frm_xfrd to actual start to show that it works.
+    # Here missing files are created in /tmp as zero-length files.
+    #
+    frm.xfr.copycmd /bin/cp /dev/null $PFN
+
+    # The adminpath and pidpath variables indicate where the pid and various
+    # IPC files should be placed
+    #
+
+    all.adminpath /var/run/xrootd/var/spool/xrootd
+    all.pidpath /var/run/xrootd/run/xrootd
+
+    # More configuration files can be added in /etc/xrootd/config.d/
+    # For example /etc/xrootd/config.d/10-mygrid.cfg and
+    # /etc/xrootd/config.d/98-mysite-specifics.cfg
+    #
+
+    ofs.authlib ++ libXrdMacaroons.so
+    ofs.authlib ++ libXrdAccSciTokens.so config=/etc/xrootd/scitokens.conf
+
+    multiuser.umask 0022
+    ofs.authorize 1
+    ofs.trace -all
+    macaroons.secretkey /etc/xrootd/macaroon-secret
+
+    acc.authdb /etc/xrootd/auth_file
+    acc.audit deny grant
+
+    scitokens.trace all
+
+    xrd.network cache 0s rpipa
+kind: ConfigMap
+metadata:
+  name: xrootd-config

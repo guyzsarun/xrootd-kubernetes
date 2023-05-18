@@ -1,0 +1,73 @@
+name: pipeline
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Glob kubernetes yaml
+        run: |
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "YAML_LIST<<$EOF" >> "$GITHUB_ENV"
+          ls -1Rd kubernetes/*.yaml >> "$GITHUB_ENV"
+          echo "$EOF" >> "$GITHUB_ENV"
+      - name: kubernetes lint
+        uses: azure/k8s-lint@v1
+        with:
+           manifests: |
+              ${{ env.YAML_LIST }}
+
+  build-all:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
+    if: ${{ github.ref == 'refs/heads/master' }}
+    needs: test
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          tags: ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
+          build-args: |
+            XROOTD_VERSION=${{ matrix.xrootd_version }}
+
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.ref != 'refs/heads/master' }}
+    needs: test
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+
+
+  push-registry:
+    runs-on: ubuntu-latest
+    needs: build-all
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push image
+        run: docker push ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
