@@ -4,12 +4,12 @@ on:
   push:
   
 jobs:
-  build:
+  build-all: &build-all
     strategy:
       matrix:
-#        xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
-        xrootd_version: [ 5.3.4-1 ]
+        xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
     runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/master' }}
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v2
@@ -23,11 +23,15 @@ jobs:
           tags: ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
           build-args: |
             XROOTD_VERSION=${{ matrix.xrootd_version }}
-
+  build:
+    <<: *build-all
+    if: ${{ github.ref != 'refs/heads/master' }}
+    
+    
   push-registry:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-all
     steps:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
