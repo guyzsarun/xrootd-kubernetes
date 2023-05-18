@@ -23,9 +23,9 @@ jobs:
           tags: ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
           build-args: |
             XROOTD_VERSION=${{ matrix.xrootd_version }}
-  build:
-    <<: *build-all
-#    if: ${{ github.ref != 'refs/heads/master' }}
+#   build:
+#     <<: *build-all
+# #    if: ${{ github.ref != 'refs/heads/master' }}
     
     
   push-registry:
