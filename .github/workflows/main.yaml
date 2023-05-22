@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release }}
     needs: test
     steps:
       - name: Check out Git repository
@@ -50,11 +50,12 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push to registry
+        if: always() && ${{ github.ref == 'refs/heads/release' }}
         run: docker push ghcr.io/guyzsarun/xrootd-kubernetes:${{ matrix.xrootd_version }}
 
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.ref != 'refs/heads/master' }}
+    if: ${{ github.ref == 'refs/heads/master && github.ref != 'refs/heads/release' }}
     needs: test
     steps:
       - name: Check out Git repository
