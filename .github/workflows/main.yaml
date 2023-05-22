@@ -26,6 +26,7 @@ jobs:
     strategy:
       matrix:
         xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release'
     needs: test
     steps:
       - name: Check out Git repository
@@ -53,7 +54,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/master }}
+    if: ${{ github.ref == 'refs/heads/master' }}
     needs: test
     steps:
       - name: Check out Git repository
