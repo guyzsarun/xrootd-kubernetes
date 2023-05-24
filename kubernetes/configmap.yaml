@@ -58,24 +58,37 @@ data:
     # redirector would have a manager role.
     #
 
-    if xrootd-manager*
+    if xrootd-manager* && exec cmsd
       all.role manager
+      all.manager xrootd-manager:1213
+
       xrd.port any
-    else
-      all.role server
+      xrd.port 1213
     fi
 
-    if exec xrootd
+    if xrootd-manager* && exec xrootd
+      all.role manager
       xrd.port 1094
-      all.manager localhost 1213
+      all.manager xrootd-manager:1213
+    fi
+
+
+    if xrootd-server* && exec xrootd
+      all.role server
+      xrd.port 1094
+      all.manager localhost:1213
       xrd.protocol http:1094 /usr/lib64/libXrdHttp.so
       sec.protocol ztn
 
       http.listingdeny yes
       http.header2cgi Authorization authz
-    else
+
+    fi
+
+    if xrootd-server* && exec cmsd
+      all.role server
       xrd.port 1213
-      all.manager xrootd-manager 1213
+      all.manager xrootd-manager:1213
     fi
 
     cms.allow host *
