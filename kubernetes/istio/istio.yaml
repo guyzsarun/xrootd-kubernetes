@@ -19,7 +19,6 @@ metadata:
 spec:
   hosts:
   - xrootd-manager
-  - xrootd-manager.xrootd-kubernetes.svc.cluster.local
   ports:
     - number: 1094
       name: xrootd
