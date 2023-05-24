@@ -11,6 +11,8 @@ spec:
       app: xrootd-server-1
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/interceptionMode: TPROXY
       labels:
         app: xrootd-server-1
     spec:
