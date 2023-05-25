@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: xrootd-server-1
+  name: xrootd-server-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xrootd-server-1
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/interceptionMode: TPROXY
+      labels:
+        app: xrootd-server-1
+    spec:
+      containers:
+      - image: ghcr.io/guyzsarun/xrootd-kubernetes:5.5.4-1.1
+        imagePullPolicy: Always
+        name: xrootd
+        resources:
+          limits:
+            memory: "100Mi"
+        command: ["/bin/bash" ,"-c"]
+        args:
+         - touch /store/temp/sitetest/${HOSTNAME} && ulimit -n 4096 && xrootd -R xrootd -c /etc/xrootd/xrootd-cluster.conf -I v4 -d
+        ports:
+        - name: xrootd-port
+          containerPort: 1094
+        - name: cmsd-port
+          containerPort: 1213
+        volumeMounts:
+        - name : mount
+          mountPath: /store/temp/sitetest
+        - name : xrootd
+          mountPath: /var/run/xrootd
+        - name: xrootd-config
+          mountPath: /etc/xrootd/auth_file
+          subPath: auth_file
+        - name: xrootd-config
+          mountPath: /etc/xrootd/scitokens.conf
+          subPath: scitokens.conf
+        - name: xrootd-config
+          mountPath: /etc/xrootd/xrootd-cluster.conf
+          subPath: xrootd-cluster.conf
+      - image: ghcr.io/guyzsarun/xrootd-kubernetes:5.5.4-1.1
+        imagePullPolicy: Always
+        name: cmsd
+        resources:
+          limits:
+            memory: "100Mi"
+        command: ["/bin/bash" ,"-c"]
+        args:
+         -  ulimit -n 4096 && cmsd -R xrootd -c /etc/xrootd/xrootd-cluster.conf -I v4 -d
+        ports:
+        - name: cmsd-port
+          containerPort: 1213
+        volumeMounts:
+        - name : xrootd
+          mountPath: /var/run/xrootd
+        - name : mount
+          mountPath: /store/temp/sitetest/
+        - name: xrootd-config
+          mountPath: /etc/xrootd/auth_file
+          subPath: auth_file
+        - name: xrootd-config
+          mountPath: /etc/xrootd/scitokens.conf
+          subPath: scitokens.conf
+        - name: xrootd-config
+          mountPath: /etc/xrootd/xrootd-cluster.conf
+          subPath: xrootd-cluster.conf
+      volumes:
+      - name: mount
+        emptyDir:
+          sizeLimit: 50Mi
+      - name: xrootd
+        emptyDir:
+          sizeLimit: 50Mi
+      - name: xrootd-config
+        configMap:
+          name: xrootd-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: xrootd-server-1
+  name: xrootd-server-1
+spec:
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 1094
+    protocol: TCP
+    targetPort: 1094
+    name: xrootd
+  - port: 1213
+    protocol: TCP
+    targetPort: 1213
+    name: cmsd
+  selector:
+    app: xrootd-server-1
