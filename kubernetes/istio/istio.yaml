@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name:  cms-iam-issuer-se
+spec:
+  hosts:
+    - cms-auth.web.cern.ch
+  location: MESH_EXTERNAL
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  resolution: NONE
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: xrootd-manager-se
+spec:
+  hosts:
+  - xrootd-manager
+  ports:
+    - number: 1094
+      name: xrootd
+      protocol: HTTP
+    - number: 1213
+      name: cmsd
+      protocol: HTTP
+  location: MESH_EXTERNAL
+  resolution: STATIC
