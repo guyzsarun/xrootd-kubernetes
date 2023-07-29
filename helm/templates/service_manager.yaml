@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: xrootd-manager
+  labels:
+    {{- include "xrootd-cluster.labels" $ | nindent 4 }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+    - port: {{ $.Values.service.xrootd_port }}
+      targetPort: {{ $.Values.service.xrootd_port }}
+      protocol: TCP
+      name: xrootd
+    - port: {{ $.Values.service.cmsd_port }}
+      targetPort: {{ $.Values.service.cmsd_port }}
+      protocol: TCP
+      name: cmsd
+  selector:
+    xrootd-component: xrootd-manager
+---

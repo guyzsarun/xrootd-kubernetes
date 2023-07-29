@@ -20,6 +20,11 @@ jobs:
         with:
            manifests: |
               ${{ env.YAML_LIST }}
+      - name: Helmchart test
+        run: |
+          cd helm
+          helm lint
+          helm template test .
 
   build-all:
     runs-on: ubuntu-latest
