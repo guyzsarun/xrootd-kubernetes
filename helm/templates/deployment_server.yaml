@@ -1,0 +1,92 @@
+{{ $count := (.Values.xrootd_server.replicaCount | int) }}
+{{- range $i, $e := until $count }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "xrootd-cluster.fullname" $ }}-server-{{$i}}
+  labels:
+    {{- include "xrootd-cluster.labels" $ | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "xrootd-cluster.selectorLabels" $ | nindent 6 }}
+  template:
+    metadata:
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        xrootd-component: xrootd-server-{{$i}}
+        {{- include "xrootd-cluster.selectorLabels" $ | nindent 8 }}
+    spec:
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $.Chart.Name }}-xrootd
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["/bin/bash" ,"-c"]
+          args:
+          - mkdir -p /store/temp/sitetest/${HOSTNAME} && ulimit -n 4096 && xrootd -R xrootd -c /etc/xrootd/xrootd-cluster.conf -n server -d
+          ports:
+            - name: xrootd
+              containerPort: {{ $.Values.service.xrootd_port }}
+              protocol: TCP
+            - name: cmsd
+              containerPort: {{ $.Values.service.cmsd_port }}
+              protocol: TCP
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: xrootd-var
+            mountPath: /store
+          - name: xrootd-var
+            mountPath: /var/run/xrootd
+          - name: xrootd-config
+            mountPath: /etc/xrootd/auth_file
+            subPath: auth_file
+          - name: xrootd-config
+            mountPath: /etc/xrootd/scitokens.conf
+            subPath: scitokens.conf
+          - name: xrootd-config
+            mountPath: /etc/xrootd/xrootd-cluster.conf
+            subPath: xrootd-cluster.conf
+        - name: {{ $.Chart.Name }}-cmsd
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command: ["/bin/bash" ,"-c"]
+          args:
+          -  ulimit -n 4096 && cmsd -R xrootd -c /etc/xrootd/xrootd-cluster.conf -n server -d
+          ports:
+            - name: cmsd
+              containerPort: {{ $.Values.service.cmsd_port }}
+              protocol: TCP
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+          volumeMounts:
+          - name: xrootd-var
+            mountPath: /store
+          - name: xrootd-var
+            mountPath: /var/run/xrootd
+          - name: xrootd-config
+            mountPath: /etc/xrootd/auth_file
+            subPath: auth_file
+          - name: xrootd-config
+            mountPath: /etc/xrootd/scitokens.conf
+            subPath: scitokens.conf
+          - name: xrootd-config
+            mountPath: /etc/xrootd/xrootd-cluster.conf
+            subPath: xrootd-cluster.conf
+      volumes:
+      - name: xrootd-var
+        emptyDir:
+          sizeLimit: 50Mi
+      - name: xrootd-config
+        configMap:
+          name: xrootd-config
+---
+{{- end }}

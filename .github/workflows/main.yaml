@@ -20,12 +20,17 @@ jobs:
         with:
            manifests: |
               ${{ env.YAML_LIST }}
+      - name: Helmchart test
+        run: |
+          cd helm
+          helm lint
+          helm template test .
 
   build-all:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        xrootd_version: [ 5.3.4-1,5.4.3-1.2,5.5.3-1.2,5.5.4-1.1 ]
+        xrootd_version: [ 5.3.4-1.osg36,5.4.3-1.2.osg36,5.5.3-1.2.osg36,5.5.4-1.1.osg36,5.6.1-1 ]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release'
     needs: test
     steps:

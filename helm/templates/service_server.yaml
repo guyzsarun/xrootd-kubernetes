@@ -1,0 +1,23 @@
+{{ $count := (.Values.xrootd_server.replicaCount | int) }}
+{{- range $i, $e := until $count }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: xrootd-server-{{$i}}
+  labels:
+    {{- include "xrootd-cluster.labels" $ | nindent 4 }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+    - port: {{ $.Values.service.xrootd_port }}
+      targetPort: http
+      protocol: TCP
+      name: xrootd
+    - port: {{ $.Values.service.cmsd_port }}
+      targetPort: http
+      protocol: TCP
+      name: cmsd
+  selector:
+    xrootd-component: xrootd-server-{{$i}}
+---
+{{- end }}

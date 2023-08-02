@@ -1,5 +1,5 @@
 FROM opensciencegrid/software-base:3.6-el8-release
-ARG  XROOTD_VERSION=5.5.4-1.1
+ARG  XROOTD_VERSION=5.5.4-1.1.osg36
 
 LABEL org.opencontainers.image.source https://github.com/guyzsarun/xrootd-kubernetes
 
@@ -18,7 +18,7 @@ RUN yum install -y  python3-scitokens \
                     xrootd-client \
                     scitokens-cpp
 
-RUN yum install -y  xrootd-1:$XROOTD_VERSION.osg36.el8
+RUN yum install -y  xrootd-1:$XROOTD_VERSION.el8
 
 RUN yum install -y xrootd-cmstfc --enablerepo=osg-contrib && yum clean all && rm -rf /var/cache/yum
 RUN openssl rand -base64 -out /etc/xrootd/macaroon-secret 64
