@@ -1,0 +1,13 @@
+[
+    {  "site": "T0_CH_CERN",
+        "volume": "TEST_JSON",
+           "protocols": [
+               {
+                "protocol": "xrootd",
+                "access": "virtual",
+                "comment": "path translations for CMS xrootd module",
+                "prefix": "/cms"
+             }
+             ]
+    }
+]
